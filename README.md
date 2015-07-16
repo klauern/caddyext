@@ -43,7 +43,7 @@ Example:
        ...
        21. (-) search
 
-    $ caddyext move 2
+    $ caddyext move search 2
 
 ### Using different target caddy source
 
