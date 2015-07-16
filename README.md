@@ -63,6 +63,7 @@ Available Commands:
   stack       Show stack of directives/extensions
   enable      Enables a installed directive or extension
   disable     Disables a installed directive or extension
+  move        Move target's index on Caddy's stack
   version     Show caddyext's version
   help        Help about any command
 
