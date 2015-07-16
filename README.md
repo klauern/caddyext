@@ -1,4 +1,4 @@
-# caddyext (Experiment)
+# caddyext
 
 *CaddyExt* is basically a Extension/Directive manager for [CaddyServer](http://caddyserver.com)
 
