@@ -23,7 +23,7 @@ func RemoveExtension(cmd *cobra.Command, args []string) {
 		cmdError(cmd, ErrMissingArguments)
 	}
 
-	dir, err := directives.NewFrom(filepath.Join(caddyPath, "config/directives.go"))
+	dir, err := directives.NewFrom(filepath.Join(caddyPath, "caddy/directives.go"))
 	if err != nil {
 		cmdError(cmd, err)
 	}

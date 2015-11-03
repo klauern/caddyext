@@ -19,7 +19,7 @@ func init() {
 }
 
 func StackExtension(cmd *cobra.Command, args []string) {
-	dir, _ := directives.NewFrom(filepath.Join(caddyPath, "config/directives.go"))
+	dir, _ := directives.NewFrom(filepath.Join(caddyPath, "caddy/directives.go"))
 	list := dir.List()
 	fmt.Println("\nAvailable Caddy directives/extensions:")
 	fmt.Println("   (✓) ENABLED | (-) DISABLED\n")

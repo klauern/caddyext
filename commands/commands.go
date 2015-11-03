@@ -31,7 +31,7 @@ func Execute() {
 	found := false
 	for _, gopath := range gopaths {
 		gopath = filepath.Join(gopath, "src")
-		fpath := filepath.Join(gopath, caddyPath, "config/directives.go")
+		fpath := filepath.Join(gopath, caddyPath, "caddy/directives.go")
 		if _, err := os.Stat(fpath); err == nil {
 			found = true
 			caddyPath = filepath.Join(gopath, caddyPath)
