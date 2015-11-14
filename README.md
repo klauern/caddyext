@@ -1,8 +1,8 @@
 # caddyext
 
-*CaddyExt* is basically a Extension/Directive manager for [CaddyServer](http://caddyserver.com)
+*caddyext* is a command line tool to manage *extensions/directives* your [Caddy](http://caddyserver.com) build.
 
-## Requirements
+### Requirements
 
 - Go (v1.4 or higher)
 - [Caddy](http://github.com/mholt/caddy)'s source inside your GOPATH.
@@ -13,7 +13,15 @@
 
 ## Usage
 
-### Installing extension
+### Installing extension from Caddy's registry
+
+[Caddy's registry](https://github.com/caddyserver/buildsrv/blob/master/features/registry.go)
+
+Example:
+
+    $ caddyext install git
+
+### Installing extension from repository
 
 Example:
 
