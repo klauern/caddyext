@@ -1,6 +1,6 @@
 # caddyext
 
-*caddyext* is a command line tool to manage *extensions/directives* your [Caddy](http://caddyserver.com) build.
+*caddyext* is a command line tool to manage *extensions/directives* of your [Caddy](http://caddyserver.com) build.
 
 ### Requirements
 
