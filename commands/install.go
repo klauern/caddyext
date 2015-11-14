@@ -27,7 +27,7 @@ var (
 // Errors
 var (
 	ErrInstallNoSource       = errors.New("Undefined extension source")
-	ErrInstallSourceNotFound = errors.New("Source doesn't exist inside GOPATH ")
+	ErrInstallSourceNotFound = errors.New("Extension source doesn't exist inside current GOPATH")
 )
 
 func init() {
