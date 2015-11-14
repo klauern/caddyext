@@ -151,12 +151,6 @@ func (d *DirectiveList) MoveDirective(name string, index int) error {
 	d.list = append(d.list[:actual], d.list[actual+1:]...)
 	d.list = append(d.list[:index], append([]*Directive{dir}, d.list[index:]...)...)
 
-	// newlist[index] = d.list[actual]
-	// spew.Dump(d.list)
-	// d.list 	 = newlist
-
-	// os.Exit(1)
-
 	return nil
 }
 

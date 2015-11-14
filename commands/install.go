@@ -3,17 +3,24 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"go/ast"
+	"go/parser"
+	"go/token"
 
 	"github.com/pedronasser/caddyext/directives"
 	"github.com/spf13/cobra"
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install <name> <source>",
+	Use:   "install <name> [source]",
 	Short: "Install and enables a extension",
 	Long:  `Install and enables a extension`,
 	Run:   InstallExtension,
@@ -26,8 +33,9 @@ var (
 
 // Errors
 var (
-	ErrInstallNoSource       = errors.New("Undefined extension source")
-	ErrInstallSourceNotFound = errors.New("Extension source doesn't exist inside current GOPATH")
+	ErrInstallNoSource         = errors.New("Undefined extension source")
+	ErrInstallSourceNotFound   = errors.New("Extension source doesn't exist inside current GOPATH")
+	ErrInstallExtensionResolve = errors.New("Coundn't resolve that extension from Caddy's registry. Please provide a repository for the extension.")
 )
 
 func init() {
@@ -35,7 +43,7 @@ func init() {
 }
 
 func InstallExtension(cmd *cobra.Command, args []string) {
-	if len(args) < 2 {
+	if len(args) < 1 {
 		cmdError(cmd, ErrMissingArguments)
 	}
 
@@ -45,7 +53,19 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 	}
 
 	name := args[0]
-	source := args[1]
+
+	var source string
+	if len(args) < 2 {
+		fmt.Printf("trying to resolve `%s` from Caddy's registry\n", name)
+		source = resolveExtension(name)
+		if len(source) == 0 {
+			cmdError(cmd, ErrInstallExtensionResolve)
+		}
+	} else {
+		source = args[1]
+	}
+
+	getExtension(source, flagUpdate)
 
 	gopaths := strings.Split(os.Getenv("GOPATH"), string(filepath.ListSeparator))
 	found := false
@@ -63,8 +83,6 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 		cmdError(cmd, ErrInstallSourceNotFound)
 	}
 
-	getExtension(source, flagUpdate)
-
 	err = dir.AddDirective(name, source)
 	if err != nil {
 		cmdError(cmd, err)
@@ -76,6 +94,60 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println(name, "successfully added to Caddy.")
+}
+
+func resolveExtension(extension string) (resolved string) {
+	resp, err := http.Get(caddyRegistry)
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	data, err := ioutil.ReadAll(resp.Body)
+
+	f, err := parser.ParseFile(token.NewFileSet(), "", data, 0)
+	node, ok := f.Scope.Lookup("Registry").Decl.(ast.Node)
+	if !ok {
+		return
+	}
+
+	c := node.(*ast.ValueSpec).Values[0].(*ast.CompositeLit)
+	for _, m := range c.Elts {
+		var directive *ast.BasicLit
+		var directiveRepo *ast.BasicLit
+		token := m.(*ast.CompositeLit).Elts
+
+		if v, ok := token[0].(*ast.BasicLit); ok {
+			directive = v
+		} else {
+			return
+		}
+
+		name, err := strconv.Unquote(directive.Value)
+		if err != nil {
+			return
+		}
+
+		if v, ok := token[1].(*ast.BasicLit); ok {
+			directiveRepo = v
+		} else {
+			return
+		}
+
+		repo, err := strconv.Unquote(directiveRepo.Value)
+		if err != nil {
+			return
+		}
+
+		if name == extension {
+			if len(repo) > 0 {
+				resolved = repo
+			}
+			return
+		}
+	}
+
+	return
 }
 
 func getExtension(source string, update bool) error {

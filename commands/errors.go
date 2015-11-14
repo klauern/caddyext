@@ -8,7 +8,7 @@ import (
 )
 
 func cmdError(cmd *cobra.Command, err error) {
+	fmt.Printf("\n`caddyext %s` error: %s\n", cmd.Name(), err)
 	cmd.Usage()
-	fmt.Printf("`%s` error: %s\n", cmd.Name(), err)
 	os.Exit(0)
 }

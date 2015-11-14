@@ -17,6 +17,7 @@ var CaddyExt = &cobra.Command{
 }
 
 var caddyPath string = "github.com/mholt/caddy"
+var caddyRegistry string = "http://raw.githubusercontent.com/caddyserver/buildsrv/master/features/registry.go"
 
 var (
 	ErrMissingArguments = errors.New("Missing arguments")
