@@ -9,7 +9,7 @@
 
 ## Installing
 
-    $ go get -u github.com/pedronasser/caddyext
+    $ go get -u github.com/caddyserver/caddyext
 
 ## Usage
 
@@ -33,7 +33,7 @@ Example:
 
     $ caddyext remove search
 
-### Disabling core extension
+### Disabling core directive
 
 Example:
 
