@@ -20,10 +20,11 @@ import (
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install <name> [source]",
-	Short: "Install and enables a extension",
-	Long:  `Install and enables a extension`,
-	Run:   InstallExtension,
+	Use:     "install <name:[repository]...>",
+	Short:   "Install and enable extension(s)",
+	Long:    `Install and enable extension(s)`,
+	Example: `  caddyext install git search:github.com/pedronasser/caddy-search`,
+	Run:     InstallExtension,
 }
 
 // Flags
@@ -33,9 +34,9 @@ var (
 
 // Errors
 var (
-	ErrInstallNoSource         = errors.New("Undefined extension source")
+	ErrInstallNoSource         = errors.New("Couldn't find extension's repository")
 	ErrInstallSourceNotFound   = errors.New("Extension source doesn't exist inside current GOPATH")
-	ErrInstallExtensionResolve = errors.New("Coundn't resolve that extension from Caddy's registry. Please provide a repository for the extension.")
+	ErrInstallExtensionResolve = errors.New("Coundn't resolve that extension from Caddy's registry. Please provide a repository for extension.")
 )
 
 func init() {
@@ -52,48 +53,50 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 		cmdError(cmd, err)
 	}
 
-	name := args[0]
+	for _, directive := range args {
+		dirparts := strings.Split(directive, ":")
+		name := dirparts[0]
 
-	var source string
-	if len(args) < 2 {
-		fmt.Printf("trying to resolve `%s` from Caddy's registry\n", name)
-		source = resolveExtension(name)
-		if len(source) == 0 {
-			cmdError(cmd, ErrInstallExtensionResolve)
+		var source string
+		if len(dirparts) < 2 {
+			fmt.Printf("trying to resolve `%s` from Caddy's registry\n", name)
+			source = resolveExtension(name)
+			if len(source) == 0 {
+				cmdError(cmd, ErrInstallExtensionResolve)
+			}
+		} else {
+			source = dirparts[1]
 		}
-	} else {
-		source = args[1]
-	}
 
-	getExtension(source, flagUpdate)
+		getExtension(source, flagUpdate)
 
-	gopaths := strings.Split(os.Getenv("GOPATH"), string(filepath.ListSeparator))
-	found := false
-	for _, gopath := range gopaths {
-		gopath = filepath.Join(gopath, "src")
-		fpath := filepath.Join(gopath, source)
-		if _, err := os.Stat(fpath); err == nil {
-			found = true
-			caddyPath = filepath.Join(gopath, caddyPath)
-			break
+		gopaths := strings.Split(os.Getenv("GOPATH"), string(filepath.ListSeparator))
+		found := false
+		for _, gopath := range gopaths {
+			gopath = filepath.Join(gopath, "src")
+			fpath := filepath.Join(gopath, source)
+			if _, err := os.Stat(fpath); err == nil {
+				found = true
+				break
+			}
 		}
-	}
 
-	if found == false {
-		cmdError(cmd, ErrInstallSourceNotFound)
-	}
+		if found == false {
+			cmdError(cmd, ErrInstallSourceNotFound)
+		}
 
-	err = dir.AddDirective(name, source)
-	if err != nil {
-		cmdError(cmd, err)
+		err = dir.AddDirective(name, source)
+		if err != nil {
+			cmdError(cmd, err)
+		}
+
+		fmt.Printf("`%s` added to Caddy.\n", name)
 	}
 
 	err = dir.Save()
 	if err != nil {
 		cmdError(cmd, err)
 	}
-
-	fmt.Println(name, "successfully added to Caddy.")
 }
 
 func resolveExtension(extension string) (resolved string) {

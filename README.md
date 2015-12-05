@@ -25,7 +25,7 @@ Example:
 
 Example:
 
-    $ caddyext install search github.com/pedronasser/caddy-search
+    $ caddyext install search:github.com/pedronasser/caddy-search
 
 ### Removing extension
 
@@ -73,6 +73,7 @@ Available Commands:
   enable      Enables a installed directive or extension
   disable     Disables a installed directive or extension
   move        Move target's index on Caddy's stack
+  reset       Reset caddy state
   version     Show caddyext's version
   help        Help about any command
 
