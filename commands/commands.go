@@ -53,6 +53,7 @@ func Execute() {
 	CaddyExt.AddCommand(enableCmd)
 	CaddyExt.AddCommand(disableCmd)
 	CaddyExt.AddCommand(moveCmd)
+	CaddyExt.AddCommand(resetCmd)
 	CaddyExt.AddCommand(versionCmd)
 	CaddyExt.Execute()
 }

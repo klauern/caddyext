@@ -23,6 +23,7 @@ var (
 	ErrDirectiveAlreadyImported     = errors.New("Directive already imported")
 	ErrDirectiveNotFound            = errors.New("Directive not found")
 	ErrDirectiveInvalidCore         = errors.New("Invalid directive (from the core)")
+	ErrDirectiveCoreCantMove        = errors.New("Can't move core directives")
 	ErrStackInvalidIndex            = errors.New("Invalid index")
 )
 
@@ -53,6 +54,7 @@ type Manager interface {
 	DisableDirective(string) error
 	MoveDirective(string, int) error
 	Save() error
+	Reset()
 }
 
 // DirectiveList ...
@@ -77,6 +79,16 @@ func (d *DirectiveList) List() []Directive {
 		list[i] = *d
 	}
 	return list
+}
+
+func (d *DirectiveList) Reset() {
+	for _, d := range d.list {
+		if d.Core {
+			d.Active = true
+		} else {
+			d.Removed = true
+		}
+	}
 }
 
 func (d *DirectiveList) AddDirective(name string, source string) error {
@@ -148,6 +160,11 @@ func (d *DirectiveList) MoveDirective(name string, index int) error {
 	}
 
 	dir := d.list[actual]
+
+	if dir.Core {
+		return ErrDirectiveCoreCantMove
+	}
+
 	d.list = append(d.list[:actual], d.list[actual+1:]...)
 	d.list = append(d.list[:index], append([]*Directive{dir}, d.list[index:]...)...)
 
