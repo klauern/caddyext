@@ -66,6 +66,7 @@ Usage:
   caddyext [command]
 
 Available Commands:
+  build       Build caddy from the current state
   install     Install and enables a extension
   remove      Remove an extension from caddy's directives source (only 3rd-party)
   stack       Show stack of directives/extensions

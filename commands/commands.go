@@ -46,6 +46,7 @@ func Execute() {
 		return
 	}
 
+	CaddyExt.AddCommand(buildCmd)
 	CaddyExt.AddCommand(installCmd)
 	CaddyExt.AddCommand(removeCmd)
 	CaddyExt.AddCommand(stackCmd)
@@ -54,4 +55,20 @@ func Execute() {
 	CaddyExt.AddCommand(moveCmd)
 	CaddyExt.AddCommand(versionCmd)
 	CaddyExt.Execute()
+}
+
+func resolveGoPath(path string) (foundPath string, found bool) {
+	gopaths := strings.Split(os.Getenv("GOPATH"), string(filepath.ListSeparator))
+	found = false
+	foundPath = ""
+	for _, gopath := range gopaths {
+		gopath = filepath.Join(gopath, "src")
+		fpath := filepath.Join(gopath, path)
+		if _, err := os.Stat(fpath); err == nil {
+			found = true
+			foundPath = fpath
+			break
+		}
+	}
+	return
 }
