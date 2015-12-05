@@ -30,6 +30,8 @@ var installCmd = &cobra.Command{
 // Flags
 var (
 	flagUpdate bool
+	flagAfter  string
+	flagBefore string
 )
 
 // Errors
@@ -41,6 +43,8 @@ var (
 
 func init() {
 	installCmd.PersistentFlags().BoolVar(&flagUpdate, "u", false, "update source")
+	installCmd.PersistentFlags().StringVarP(&flagAfter, "after", "a", "", "directive that new directives would be installed AFTER")
+	installCmd.PersistentFlags().StringVarP(&flagBefore, "before", "b", "", "directive that new directives would be installed BEFORE")
 }
 
 func InstallExtension(cmd *cobra.Command, args []string) {
@@ -52,6 +56,8 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 	if err != nil {
 		cmdError(cmd, err)
 	}
+
+	directives := dir.List()
 
 	for _, directive := range args {
 		dirparts := strings.Split(directive, ":")
@@ -88,6 +94,16 @@ func InstallExtension(cmd *cobra.Command, args []string) {
 		err = dir.AddDirective(name, source)
 		if err != nil {
 			cmdError(cmd, err)
+		}
+
+		if len(flagAfter) > 0 || len(flagBefore) > 0 {
+			for i, d := range directives {
+				if d.Name == flagBefore {
+					dir.MoveDirective(name, i)
+				} else if d.Name == flagAfter {
+					dir.MoveDirective(name, i+1)
+				}
+			}
 		}
 
 		fmt.Printf("`%s` added to Caddy.\n", name)
