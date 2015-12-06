@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/pedronasser/caddyext/directives"
+	"github.com/caddyserver/caddyext/directives"
 	"github.com/spf13/cobra"
 )
 
