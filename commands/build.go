@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -39,7 +40,11 @@ func BuildCaddy(cmd *cobra.Command, args []string) {
 		args = args[1:]
 	}
 
-	outputPath = filepath.Join(outputPath, "customCaddy")
+	var ext string
+	if runtime.GOOS == "windows" {
+		ext = ".exe"
+	}
+	outputPath = filepath.Join(outputPath, "customCaddy"+ext)
 
 	if err := caddyBuild(caddyPath, outputPath, args...); err != nil {
 		cmdError(cmd, err)
